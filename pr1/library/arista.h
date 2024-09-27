@@ -6,11 +6,13 @@
 
 class Arista {
  public:
-   double Get_coste() { return coste_;}
-   Nodo* Get_origen() { return origen_;}
-   Nodo* Get_destino() { return destino_;}
+   Arista(int,int,int);
+   int Get_coste() { return coste_;}
+   int Get_origen() { return origen_;}
+   int Get_destino() { return destino_;}
+   void Ver_arista();
  private:
-   double coste_;
-   Nodo* origen_;
-   Nodo* destino_;
+   int coste_;
+   int origen_;
+   int destino_;
 };
