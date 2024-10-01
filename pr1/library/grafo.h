@@ -5,11 +5,14 @@
 #include<vector>
 #include "nodo.h"
 #include "arista.h"
-#include "tools.h"
 #include <sstream>
 #include <queue>
 #include <stack>
 #include <set>
+#include <sstream>
+#include <algorithm> 
+#include <stack>
+
 
 class Grafo {
  public:

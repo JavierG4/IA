@@ -10,8 +10,8 @@ void Nodo::Set_hijo(Nodo* hijo) {
 }
 
 bool Nodo::Visitado(int econtrar) {
-  Nodo* Este = this;
-  Nodo* nodo = Este;
+  //std::cout << "Visitando" << numero_ << std::endl;
+  Nodo* nodo = this;
   while (nodo->Get_padre() != nullptr) {
     if (nodo->Get_padre()->Get_numero() == econtrar ) {
       return true;

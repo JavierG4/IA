@@ -21,4 +21,4 @@ actu:
 	git push
 	
 program:
-	g++ -o main main.cc tools.cc nodo.cc arista.cc grafo.cc
+	g++ -o Arbol main.cc nodo.cc arista.cc grafo.cc
