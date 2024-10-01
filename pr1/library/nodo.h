@@ -11,7 +11,7 @@ class Nodo {
    Nodo* Get_padre() { return padre_;}
    void Set_hijo (Nodo* hijo);
    void Set_padre(Nodo*);
-   bool Visitado(int)
+   bool Visitado(int);
    
  private:
    int numero_;

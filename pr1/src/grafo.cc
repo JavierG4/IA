@@ -57,7 +57,7 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
   Nodo* Inicial = new Nodo(inicio);
   vertices_.push_back(Inicial);
   proximos.push(Inicial);
-  generados.push(inicio);
+  generados.push_back(inicio);
   int contador = 1;
 
   while (!proximos.empty()) {
@@ -88,7 +88,7 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
       Nodo* padre = top->Get_padre();
       while(padre != nullptr) {
         camino.push_back(padre->Get_numero());
-        resultado =+ camino(top->Get_numero(),padre->Get_padre());
+        resultado =+ Camino(top->Get_numero(),padre->Get_numero());
         padre = padre->Get_padre();
       }
       //Imprimir resultado final... y break
@@ -117,7 +117,7 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
   }
 }
 
-Void Grafo::RecorridoProfundidad(int inicio, int final) {
+void Grafo::RecorridoProfundidad(int final,int inicio) {
   // Para liberar memoria, tenemos que comprobar si un nodo ya hemos
   // inspeccionado sus sucesores si es así liberamos esos nodos
 }
@@ -129,4 +129,5 @@ int Grafo::Camino(int inicio,int final) {
       return aristas_[inicio-1][i]->Get_coste();
     }
   }
+  return 0;
 }
