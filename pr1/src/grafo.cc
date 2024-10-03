@@ -4,6 +4,7 @@ Grafo::Grafo(std::string fichero) {
   std::ifstream archivo{fichero};
   int num_vertices;
   archivo >> num_vertices;
+  n_aristas_ = 0;
 
   aristas_.resize(num_vertices);
   for (int i = 0; i < num_vertices; ++i) {
@@ -23,6 +24,7 @@ Grafo::Grafo(std::string fichero) {
         aristas_[i].push_back(arista);
         Arista* arista2 = new Arista(coste, j + 1, i + 1);
         aristas_[j].push_back(arista2);
+        n_aristas_++;
       }
     }
   }
@@ -60,24 +62,65 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
   proximos.push(Inicial);
   generados.push_back(inicio);
   int contador = 1;
+  std::ofstream archivo("salida.txt", std::ios::out);
 
+  std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+  archivo << "--------------------------------------------------------------------------------------" << std::endl;
+
+  std::cout << "Número de nodos del Grafo: " << aristas_.size() << std::endl;
+  archivo << "Número de nodos del Grafo: " << aristas_.size() << std::endl;
+
+  std::cout << "Numero de aristas: " << n_aristas_ << std::endl;
+  archivo << "Numero de aristas: " << n_aristas_ << std::endl;
+
+  std::cout << "Nodo Inicial: " << inicio << std::endl;
+  archivo << "Nodo Inicial: " << inicio << std::endl;
+
+  std::cout << "Nodo Final: " << destino << std::endl;
+  archivo << "Nodo Final: " << destino << std::endl;
+
+  std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+  archivo << "--------------------------------------------------------------------------------------" << std::endl;
 
   while (!proximos.empty()) {
+    // Imprimo datos de cada iteracion
     std::cout << "Iteración " << contador << std::endl;
+    archivo << "Iteración " << contador << std::endl;
+
     std::cout << "Nodos generados: ";
-    for ( int i = 0; i < generados.size(); i++) {
-      std::cout << generados[i] << ", ";
-    }
-    std::cout << std::endl;
-    std::cout << "Nodos Inspeccionados: ";
-    if (inspeccionados.size() == 0) {
-      std::cout << "-";
-    } else {
-      for ( int i = 0; i < inspeccionados.size(); i++) {
-        std::cout << inspeccionados[i] << ", ";
+    archivo << "Nodos generados: ";
+    for (int i = 0; i < generados.size(); i++) {
+      if( i == generados.size() - 1) {
+        std::cout << generados[i];
+        archivo << generados[i];
+      } else {
+        std::cout << generados[i] << ", ";
+        archivo << generados[i] << ", ";
       }
     }
     std::cout << std::endl;
+    archivo << std::endl;
+
+    std::cout << "Nodos Inspeccionados: ";
+    archivo << "Nodos Inspeccionados: ";
+    if (inspeccionados.size() == 0) {
+      std::cout << "-";
+      archivo << "-";
+    } else {
+      for (int i = 0; i < inspeccionados.size(); i++) {
+        if( i == inspeccionados.size() - 1) {
+          std::cout << inspeccionados[i];
+          archivo << inspeccionados[i];
+        } else {
+        std::cout << inspeccionados[i] << ", ";
+        archivo << inspeccionados[i] << ", ";
+        }
+      }
+    }
+    std::cout << std::endl;
+    archivo << std::endl;
+    std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+    archivo << "--------------------------------------------------------------------------------------" << std::endl;
     
     //std::cout << "pepe" << std::endl;
     // Sacamos de la cola el front y metemos en inspeccionados
@@ -96,18 +139,25 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
         temporal = padre;
         padre = padre->Get_padre();
       }
-      std::cout << "Coste " << resultado << std::endl;
       std::cout << "Recorrido ";
-      for (int i = 0; i < camino.size();i++){
+      for (int i = camino.size() - 1; i > 0;i--){
+        archivo << camino[i] << " - ";
         std::cout << camino[i] << " - ";
       }
+      std::cout << std::endl;
+      archivo << std::endl;
+      std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+      archivo << "--------------------------------------------------------------------------------------" << std::endl;
+      std::cout << "Coste " << resultado << std::endl;
+      std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+      archivo << "--------------------------------------------------------------------------------------" << std::endl;
       std::cout << std::endl;
       break;
     }
     //std::cout << "pepe2" << std::endl;
     // Recorremos las aristas del front
     for (int i = 0; i < aristas_[top->Get_numero() -1].size(); i++) {
-      std::cout << i;
+      //std::cout << i;
       int hijo = aristas_[top->Get_numero() -1][i]->Get_destino();
 
       if (!top->Visitado(hijo)) { // Duda ¿ Añadimos el sucesor solo si no estaba ya antes en la rama para evitar bucles infinitos? Se para cuando se inspecciona el final y sucesores
@@ -144,25 +194,66 @@ void Grafo::RecorridoProfundidad(int destino,int inicio) {
   generados.push_back(inicio);
   int contador = 1;
 
+  std::ofstream archivo("salida.txt", std::ios::out);
+
+  std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+  archivo << "--------------------------------------------------------------------------------------" << std::endl;
+
+  std::cout << "Número de nodos del Grafo: " << aristas_.size() << std::endl;
+  archivo << "Número de nodos del Grafo: " << aristas_.size() << std::endl;
+
+  std::cout << "Numero de aristas: " << n_aristas_ << std::endl;
+  archivo << "Numero de aristas: " << n_aristas_ << std::endl;
+
+  std::cout << "Nodo Inicial: " << inicio << std::endl;
+  archivo << "Nodo Inicial: " << inicio << std::endl;
+
+  std::cout << "Nodo Final: " << destino << std::endl;
+  archivo << "Nodo Final: " << destino << std::endl;
+
+  std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+  archivo << "--------------------------------------------------------------------------------------" << std::endl;
 
   while (!proximos.empty()) {
 
     // Imprimo datos de cada iteracion
     std::cout << "Iteración " << contador << std::endl;
+    archivo << "Iteración " << contador << std::endl;
+
     std::cout << "Nodos generados: ";
-    for ( int i = 0; i < generados.size(); i++) {
+    archivo << "Nodos generados: ";
+    for (int i = 0; i < generados.size(); i++) {
+      if (i == generados.size() - 1) {
+        std::cout << generados[i];
+        archivo << generados[i];
+      } else {
       std::cout << generados[i] << ", ";
-    }
-    std::cout << std::endl;
-    std::cout << "Nodos Inspeccionados: ";
-    if (inspeccionados.size() == 0) {
-      std::cout << "-";
-    } else {
-      for ( int i = 0; i < inspeccionados.size(); i++) {
-        std::cout << inspeccionados[i] << ", ";
+      archivo << generados[i] << ", ";
       }
     }
     std::cout << std::endl;
+    archivo << std::endl;
+
+    std::cout << "Nodos Inspeccionados: ";
+    archivo << "Nodos Inspeccionados: ";
+    if (inspeccionados.size() == 0) {
+      std::cout << "-";
+      archivo << "-";
+    } else {
+      for (int i = 0; i < inspeccionados.size(); i++) {
+        if (i == inspeccionados.size() - 1) {
+          std::cout << inspeccionados[i];
+          archivo << inspeccionados[i];
+        } else {
+        std::cout << inspeccionados[i] << ", ";
+        archivo << inspeccionados[i] << ", ";
+        }
+      }
+    }
+    std::cout << std::endl;
+    archivo << std::endl;
+    std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+    archivo << "--------------------------------------------------------------------------------------" << std::endl;
     
     //std::cout << "pepe" << std::endl;
     // Sacamos de la cola el front y metemos en inspeccionados
@@ -170,7 +261,7 @@ void Grafo::RecorridoProfundidad(int destino,int inicio) {
     proximos.pop();
     inspeccionados.push_back(top->Get_numero());
 
-    // Comprobamos si esta en la rama
+    // Comprobamos si es el final
     if (top->Get_numero() == destino) {
       int resultado = 0;
       std::vector<int> camino;
@@ -183,23 +274,30 @@ void Grafo::RecorridoProfundidad(int destino,int inicio) {
         temporal = padre;
         padre = padre->Get_padre();
       }
-      std::cout << "Coste " << resultado << std::endl;
       std::cout << "Recorrido ";
-      for (int i = 0; i < camino.size();i++){
+      archivo << "Recorrido ";
+      for (int i = camino.size() - 1; i > 0;i--){
+        archivo << camino[i] << " - ";
         std::cout << camino[i] << " - ";
       }
       std::cout << std::endl;
+      archivo << std::endl;
+      std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+      archivo << "--------------------------------------------------------------------------------------" << std::endl;
+      std::cout << "Coste " << resultado << std::endl;
+      archivo << "Coste " << resultado << std::endl;
+      archivo << std::endl;
+      std::cout << std::endl;
+      std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+      archivo << "--------------------------------------------------------------------------------------" << std::endl;
       break;
     }
-    //std::cout << "pepe2" << std::endl;
     // Recorremos las aristas del front
     for (int i = aristas_[top->Get_numero() - 1].size() - 1; i >= 0; i--) {
-      std::cout <<  "Destino "<<aristas_[top->Get_numero() -1][i]->Get_destino() << std::endl;
       int hijo = aristas_[top->Get_numero() -1][i]->Get_destino();
 
       if (!top->Visitado(hijo)) { // Duda ¿ Añadimos el sucesor solo si no estaba ya antes en la rama para evitar bucles infinitos? Se para cuando se inspecciona el final y sucesores
         // Creamos este nuevo nodo
-        //std::cout << "Entrando" << std::endl;
         Nodo* nuevo_nodo = new Nodo (hijo);
         //Destructor...
         vertices_.push_back(nuevo_nodo);

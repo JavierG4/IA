@@ -4,9 +4,10 @@
 #include "../library/arista.h"
 #include "../library/nodo.h"
 
-int main() {
-  Grafo Arbol("grafo4.txt");
-  Arbol.Visualizar();
+int main(int argc, char* argv[]) {
+  std::string nombre_archivo = argv[1];
+  Grafo Arbol(nombre_archivo);
+  //Arbol.Visualizar();
   int inicial, final;
   bool decision;
   std::cout << "Que recorrido quieres hacer, pulse 0 amplitud, 1 profundidad" << std::endl;
@@ -22,4 +23,5 @@ int main() {
   } else {
     Arbol.RecorridoProfundidad(final,inicial);
   }
+  return 0;
 }
