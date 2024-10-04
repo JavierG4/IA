@@ -1,0 +1,153 @@
+#include "../library/tablero.h"
+
+Tablero::Tablero(std::string nombre_archivo) {
+  std::ifstream archivo(nombre_archivo);
+  if (!archivo) {
+    throw std::logic_error("No se pudo abrir el archivo: " + nombre_archivo);
+  }
+
+  int filas, columnas;
+  archivo >> filas >> columnas;
+  tablero_.resize(filas, std::vector<int>(columnas));
+
+  for (int i = 0; i < filas; ++i) {
+    for (int j = 0; j < columnas; ++j) {
+      int casilla;
+      archivo >> casilla;
+      tablero_[i][j] = casilla;
+      if (casilla = 3 ) {
+        inicialx_ = i;
+        inicialy_ = j;
+      } else if ( casilla = 4) {
+        finalx_ = i;
+        finaly_ = j;
+      }
+    }
+  }
+
+  archivo.close();
+}
+
+void Tablero::ImprimirEnFichero(std::string nombre_fichero) {
+  std::ofstream archivo(nombre_fichero);
+  if (!archivo) {
+    std::cerr << "No se pudo abrir el archivo para escribir." << std::endl;
+    return;
+  }
+  archivo << tablero_.size() << std::endl;
+  archivo << tablero_[0].size() << std::endl;
+
+  for (const auto& fila : tablero_) {
+    for (const auto& elemento : fila) {
+      archivo << elemento << " ";
+    }
+    archivo << "\n";
+  }
+
+  archivo.close();
+}
+
+void Tablero::BusquedaA() {
+  std::set<Nodo*> cerrados;
+  std::set<Nodo*> abierto;
+  // Creo nodo inicial
+  Nodo* inicial = new Nodo(inicialx_,inicialy_);
+  //Añadimos el nodo inicial al vector y sus funciones
+  abierto.insert(inicial);
+  int h = Calcular_h(inicialx_,inicialy_);
+  int f = Calcular_f(0,inicialx_,inicialy_);
+  inicial->Set_f(f);
+  inicial->Set_h(h);
+  inicial->Set_g(0);
+  while (!abierto.empty()) {
+  // Encontramos el menor f en abiertos (2.a)
+    int menor_f = 99999999;
+    Nodo* nodo = nullptr;
+    for ( auto c : abierto ) {
+      int f = c->Get_f();
+      if ( menor_f > f ) {
+        nodo = c;
+        menor_f = f;
+      }
+    }
+    abierto.erase(nodo);
+    cerrados.insert(nodo);
+  // Calculamos los hijos y los añadimos a la lista de abiertos si no estan en cerrados
+  // Si encontramos un nodo que ya esta en el vector de abiertos, comprobamos si el nuevo camino es mejor
+  // (2.b)
+    int posx = nodo->Get_posx();
+    int posy = nodo->Get_posy();
+
+// Direcciones posibles (8 direcciones)
+    int dx[8] = {-1, 1, 0, 0, -1, -1, 1, 1};
+    int dy[8] = {0, 0, -1, 1, -1, 1, -1, 1};
+    int costos[8] = {5, 5, 5, 5, 7, 7, 7, 7}; // Costos correspondientes a cada dirección
+
+    for (int i = 0; i < 8; ++i) {
+      int new_x = posx + dx[i];
+      int new_y = posy + dy[i];
+
+      // Verificamos si la nueva posición está dentro de los límites y no es un obstáculo
+      if (new_x >= 0 && new_x < tablero_.size() && new_y >= 0 && new_y < tablero_[0].size() && tablero_[new_x][new_y] != 1) {
+        Nodo* hijo = new Nodo(new_x, new_y);
+        hijo->Set_padre(nodo);
+        int g = nodo->Get_g() + costos[i]; // Suponiendo que el costo de moverse a un hijo es 1
+        int h = Calcular_h(new_x, new_y);
+        int f = Calcular_f(g, new_x, new_y);
+        hijo->Set_g(g);
+        hijo->Set_h(h);
+        hijo->Set_f(f);
+        bool encontrado = false;
+        bool peor = false; // El que ya está en abiertos es peor
+        // Compruebo si esta en cerrados y si es mejor
+        for ( auto c : cerrados ) {
+          if ( c->Get_posx() == new_x && c->Get_posy() == new_y ) {
+            encontrado = true;
+          }
+        }
+        if (!encontrado ) { 
+          for (auto c : abierto) {
+            if (c->Get_posx() == new_x && c->Get_posy() == new_y) {
+              if (c->Get_f() > f) {
+                abierto.erase(c);
+                abierto.insert(hijo);
+                encontrado = true;
+                peor = false;
+              }
+            }
+          }
+        }
+        // Si esta en ningun vector lo añado
+        if ( !encontrado ) {
+          abierto.insert(hijo);
+        // Si ya estaba y el que estaba es peor
+        } else if ( encontrado && !peor ) {
+          delete hijo;
+        }
+      }
+    }
+  // Paramos cuando no haya f(n) mas pequeño que el final
+
+
+  //Hay que imprimir cada iteración como la anterior
+
+  }
+  //Destructor
+  for (auto c : cerrados) {
+    delete c;
+  }
+  for ( auto c : abierto ) {
+    delete c;
+  }
+}
+
+int Tablero::Calcular_h(int xE, int yE) {
+  const int W = 3;
+  int distancia_manhattan = std::abs(xE - finalx_) + std::abs(yE - finaly_);
+  return distancia_manhattan * W;
+}
+
+int Tablero::Calcular_f(int costeg, int posx, int posy) {
+  int coste_h = Calcular_h(posx,posy);
+  return costeg + coste_h;
+}
