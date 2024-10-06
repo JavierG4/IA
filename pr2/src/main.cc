@@ -4,7 +4,8 @@
 int main(int argc, char* argv[]) {
   std::string archivo = argv[1];
   Tablero tablero(archivo);
-  tablero.ImprimirEnFichero("salida.txt");
+  //tablero.ImprimirEnFichero("salida.txt");
+  tablero.BusquedaA();
 
   return 0;
 }

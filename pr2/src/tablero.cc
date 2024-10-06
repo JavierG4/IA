@@ -1,5 +1,77 @@
 #include "../library/tablero.h"
+// "█" = 1
 
+#include <iostream>
+#include <vector>
+#include <fstream>
+
+/**
+ * @brief Imprime el laberinto en la consola y en un archivo.
+ * @param laberinto Vector de vectores que representa el laberinto.
+ * @param nombre_fichero Nombre del archivo donde se imprimirá el laberinto.
+ */
+void ImprimirLaberinto(const std::vector<std::vector<int>>& laberinto, const std::string& nombre_fichero) {
+  std::ofstream archivo(nombre_fichero);
+  if (!archivo) {
+    std::cerr << "No se pudo abrir el archivo para escribir." << std::endl;
+    return;
+  }
+
+  int filas = laberinto.size();
+  int columnas = laberinto[0].size();
+
+  for (int i = 0; i < filas; i++) {
+    for (int j = 0; j < columnas; j++) {
+      if (laberinto[i][j] == 1) {
+        std::cout << "█";  // Para representar el cuadro negro
+        archivo << "█";
+      } else if (laberinto[i][j] == 0) {
+        std::cout << " ";  // Para representar el cuadro blanco
+        archivo << " ";
+      } else if (laberinto[i][j] == 3) {
+        std::cout << "E";  // Para representar la salida "E"
+        archivo << "E";
+      } else if (laberinto[i][j] == 4) {
+        std::cout << "S";  // Para representar el inicio "S"
+        archivo << "S";
+      }
+    }
+    std::cout << std::endl;  // Salto de línea al final de cada fila
+    archivo << std::endl;
+  }
+
+  archivo.close();
+}
+
+void ImprimirIteracion(int contador, const std::set<Nodo*>& abierto, const std::set<Nodo*>& cerrados) {
+  // Abre un archivo para escribir los datos en modo de sobrescritura
+  std::ofstream archivo("salida.txt", std::ios::app);
+
+  // Imprimir en la consola
+  std::cout << "Iteración " << contador << std::endl;
+  std::cout << "Abiertos: " << std::endl;
+  for (auto c : abierto) {
+    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+  std::cout << "Cerrados: " << std::endl;
+  for (auto c : cerrados) {
+    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+
+  // Imprimir en el archivo
+  archivo << "Iteración " << contador << std::endl;
+  archivo << "Abiertos: " << std::endl;
+  for (auto c : abierto) {
+    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+  archivo << "Cerrados: " << std::endl;
+  for (auto c : cerrados) {
+    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+
+  // Cierra el archivo
+  archivo.close();
+}
 Tablero::Tablero(std::string nombre_archivo) {
   std::ifstream archivo(nombre_archivo);
   if (!archivo) {
@@ -59,7 +131,11 @@ void Tablero::BusquedaA() {
   inicial->Set_f(f);
   inicial->Set_h(h);
   inicial->Set_g(0);
+  int contador = 1;
   while (!abierto.empty()) {
+    // Imprimir cada iteración
+    ImprimirIteracion(contador, abierto, cerrados);
+    //std::cout << "tamaño abierto: " << abierto.size() << std::endl; 
   // Encontramos el menor f en abiertos (2.a)
     int menor_f = 99999999;
     Nodo* nodo = nullptr;
@@ -70,6 +146,37 @@ void Tablero::BusquedaA() {
         menor_f = f;
       }
     }
+    // Verificamos si el nodo final está en abiertos con un menor f
+    for (auto c : cerrados) {
+      if (c->Get_posx() == finalx_ && c->Get_posy() == finaly_ && c->Get_f() <= menor_f) {
+        nodo = c;
+        menor_f = c->Get_f();
+        break;
+      }
+    }
+
+
+  //Comprobamos si es el final con el menor f(N)
+    if (nodo->Get_posx() == finalx_ && nodo->Get_posy() == finaly_) {
+      std::cout << "Hemos llegado al final" << std::endl;
+      std::vector<std::vector<int>> tablero = tablero_;
+      Nodo* aux = nodo;
+      while (aux->Get_padre() != nullptr) {
+        tablero[aux->Get_posx()][aux->Get_posy()] = 2;
+        aux = aux->Get_padre();
+      }
+      std::cout << "Copito " << std::endl;
+      ImprimirLaberinto(tablero, "salida.txt");
+      //Destructor
+      for (auto c : cerrados) {
+        delete c;
+      }
+      for ( auto c : abierto ) {
+        delete c;
+      }
+      return;
+    }
+  // sacamos el nodo de abiertos y lo metemos en cerrados
     abierto.erase(nodo);
     cerrados.insert(nodo);
   // Calculamos los hijos y los añadimos a la lista de abiertos si no estan en cerrados
@@ -78,20 +185,20 @@ void Tablero::BusquedaA() {
     int posx = nodo->Get_posx();
     int posy = nodo->Get_posy();
 
-// Direcciones posibles (8 direcciones)
+    // Direcciones posibles (8 direcciones)
     int dx[8] = {-1, 1, 0, 0, -1, -1, 1, 1};
     int dy[8] = {0, 0, -1, 1, -1, 1, -1, 1};
     int costos[8] = {5, 5, 5, 5, 7, 7, 7, 7}; // Costos correspondientes a cada dirección
-
+    // Recorremos las 8 direcciones
     for (int i = 0; i < 8; ++i) {
       int new_x = posx + dx[i];
       int new_y = posy + dy[i];
 
       // Verificamos si la nueva posición está dentro de los límites y no es un obstáculo
-      if (new_x >= 0 && new_x < tablero_.size() && new_y >= 0 && new_y < tablero_[0].size() && tablero_[new_x][new_y] != 1) {
+      if (new_x >= 0 && new_x < tablero_.size() && new_y >= 0 && new_y < tablero_[0].size() && (tablero_[new_x][new_y] != 1 )) {
         Nodo* hijo = new Nodo(new_x, new_y);
         hijo->Set_padre(nodo);
-        int g = nodo->Get_g() + costos[i]; // Suponiendo que el costo de moverse a un hijo es 1
+        int g = nodo->Get_g() + costos[i]; // Movimiento de coste 5 o 7
         int h = Calcular_h(new_x, new_y);
         int f = Calcular_f(g, new_x, new_y);
         hijo->Set_g(g);
@@ -103,35 +210,41 @@ void Tablero::BusquedaA() {
         for ( auto c : cerrados ) {
           if ( c->Get_posx() == new_x && c->Get_posy() == new_y ) {
             encontrado = true;
+            break;
           }
         }
         if (!encontrado ) { 
           for (auto c : abierto) {
             if (c->Get_posx() == new_x && c->Get_posy() == new_y) {
               if (c->Get_f() > f) {
-                abierto.erase(c);
-                abierto.insert(hijo);
-                encontrado = true;
+                c->Set_f(f);
+                c->Set_g(g);
+                c->Set_h(h);
+                c->Set_padre(nodo);
                 peor = false;
               }
+              encontrado = true;
+              peor = true;
+              break;
             }
           }
         }
-        // Si esta en ningun vector lo añado
+        // Si no esta en ningun vector lo añado
         if ( !encontrado ) {
-          abierto.insert(hijo);
+          if (hijo->Visitado()) { // Preveo bucles viendo
+            delete hijo;
+          } else {
+            abierto.insert(hijo);
+          }
         // Si ya estaba y el que estaba es peor
         } else if ( encontrado && !peor ) {
           delete hijo;
         }
       }
     }
-  // Paramos cuando no haya f(n) mas pequeño que el final
-
-
-  //Hay que imprimir cada iteración como la anterior
-
+    contador++;
   }
+  std::cout << "No se ha encontrado solución" << std::endl;
   //Destructor
   for (auto c : cerrados) {
     delete c;

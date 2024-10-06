@@ -16,12 +16,6 @@ class Nodo {
    Nodo(int, int);
 
    /**
-    * @brief Obtiene el número del nodo.
-    * @return Número del nodo.
-    */
-   int Get_numero() { return numero_; }
-
-   /**
     * @brief Obtiene los hijos del nodo.
     * @return Vector de punteros a los nodos hijos.
     */
@@ -50,7 +44,7 @@ class Nodo {
     * @param encontrar Número del nodo a verificar.
     * @return true si el nodo ha sido visitado, false en caso contrario.
     */
-   bool Visitado(int encontrar);
+   bool Visitado();
    void Set_pos(int,int);
    int Get_posx() const{return posx_;}
    int Get_posy() const {return posy_;}
