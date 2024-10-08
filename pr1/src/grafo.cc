@@ -140,7 +140,7 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
         padre = padre->Get_padre();
       }
       std::cout << "Recorrido ";
-      for (int i = camino.size() - 1; i > 0;i--){
+      for (int i = camino.size() - 1; i >= 0; i--) {
         archivo << camino[i] << " - ";
         std::cout << camino[i] << " - ";
       }
@@ -276,7 +276,7 @@ void Grafo::RecorridoProfundidad(int destino,int inicio) {
       }
       std::cout << "Recorrido ";
       archivo << "Recorrido ";
-      for (int i = camino.size() - 1; i > 0;i--){
+      for (int i = camino.size() - 1; i >= 0;i--){
         archivo << camino[i] << " - ";
         std::cout << camino[i] << " - ";
       }
