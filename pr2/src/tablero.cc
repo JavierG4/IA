@@ -28,6 +28,9 @@ void ImprimirLaberinto(const std::vector<std::vector<int>>& laberinto, const std
       } else if (laberinto[i][j] == 0) {
         std::cout << " ";  // Para representar el cuadro blanco
         archivo << " ";
+      } else if(laberinto[i][j] == 2) {
+          std::cout << "*";  // Para representar el cuadro blanco
+          archivo << "*";
       } else if (laberinto[i][j] == 3) {
         std::cout << "E";  // Para representar la salida "E"
         archivo << "E";
@@ -87,10 +90,12 @@ Tablero::Tablero(std::string nombre_archivo) {
       int casilla;
       archivo >> casilla;
       tablero_[i][j] = casilla;
-      if (casilla = 3 ) {
+      if (casilla == 3 ) {
+        //std::cout << "Encontrado el inicio" << std::endl;
+        //std::cout << "Posición: " << i << " " << j << std::endl;
         inicialx_ = i;
         inicialy_ = j;
-      } else if ( casilla = 4) {
+      } else if ( casilla == 4) {
         finalx_ = i;
         finaly_ = j;
       }
@@ -165,7 +170,8 @@ void Tablero::BusquedaA() {
         tablero[aux->Get_posx()][aux->Get_posy()] = 2;
         aux = aux->Get_padre();
       }
-      std::cout << "Copito " << std::endl;
+      tablero[finalx_][finaly_] = 4;
+      //std::cout << "Copito " << std::endl;
       ImprimirLaberinto(tablero, "salida.txt");
       //Destructor
       for (auto c : cerrados) {
