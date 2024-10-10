@@ -152,7 +152,7 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
       std::cout << "--------------------------------------------------------------------------------------" << std::endl;
       archivo << "--------------------------------------------------------------------------------------" << std::endl;
       std::cout << std::endl;
-      break;
+      return;
     }
     //std::cout << "pepe2" << std::endl;
     // Recorremos las aristas del front
@@ -179,6 +179,8 @@ void Grafo::RecorridoAmplitud(int destino, int inicio) {
     }
     contador++;
   }
+  std::cout << "No se ha encontrado camino" << std::endl;
+  archivo << "No se ha encontrado camino" << std::endl;
 }
 
 void Grafo::RecorridoProfundidad(int destino,int inicio) {
@@ -290,7 +292,7 @@ void Grafo::RecorridoProfundidad(int destino,int inicio) {
       std::cout << std::endl;
       std::cout << "--------------------------------------------------------------------------------------" << std::endl;
       archivo << "--------------------------------------------------------------------------------------" << std::endl;
-      break;
+      return;
     }
     // Recorremos las aristas del front
     for (int i = aristas_[top->Get_numero() - 1].size() - 1; i >= 0; i--) {
@@ -314,6 +316,8 @@ void Grafo::RecorridoProfundidad(int destino,int inicio) {
     }
     contador++;
   }
+  std::cout << "No se ha encontrado camino" << std::endl;
+  archivo << "No se ha encontrado camino" << std::endl;
 }
 
 

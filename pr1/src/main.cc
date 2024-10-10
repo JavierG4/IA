@@ -7,7 +7,7 @@
 int main(int argc, char* argv[]) {
   std::string nombre_archivo = argv[1];
   Grafo Arbol(nombre_archivo);
-  //Arbol.Visualizar();
+  Arbol.Visualizar();
   int inicial, final;
   bool decision;
   std::cout << "Que recorrido quieres hacer, pulse 0 amplitud, 1 profundidad" << std::endl;
