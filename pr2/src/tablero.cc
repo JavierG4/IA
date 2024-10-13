@@ -11,7 +11,7 @@
  * @param nombre_fichero Nombre del archivo donde se imprimirá el laberinto.
  */
 void ImprimirLaberinto(const std::vector<std::vector<int>>& laberinto, const std::string& nombre_fichero) {
-  std::ofstream archivo(nombre_fichero);
+  std::ofstream archivo(nombre_fichero, std::ios::app);
   if (!archivo) {
     std::cerr << "No se pudo abrir el archivo para escribir." << std::endl;
     return;
@@ -32,10 +32,10 @@ void ImprimirLaberinto(const std::vector<std::vector<int>>& laberinto, const std
           std::cout << "*";  // Para representar el cuadro blanco
           archivo << "*";
       } else if (laberinto[i][j] == 3) {
-        std::cout << "E";  // Para representar la salida "E"
+        std::cout << "E";  // Para representar la entrada "E"
         archivo << "E";
       } else if (laberinto[i][j] == 4) {
-        std::cout << "S";  // Para representar el inicio "S"
+        std::cout << "S";  // Para representar la salida "S"
         archivo << "S";
       }
     }
@@ -46,35 +46,17 @@ void ImprimirLaberinto(const std::vector<std::vector<int>>& laberinto, const std
   archivo.close();
 }
 
-void ImprimirIteracion(int contador, const std::set<Nodo*>& abierto, const std::set<Nodo*>& cerrados) {
-  // Abre un archivo para escribir los datos en modo de sobrescritura
-  std::ofstream archivo("salida.txt", std::ios::app);
-
-  // Imprimir en la consola
-  std::cout << "Iteración " << contador << std::endl;
-  std::cout << "Abiertos: " << std::endl;
-  for (auto c : abierto) {
-    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-  std::cout << "Cerrados: " << std::endl;
-  for (auto c : cerrados) {
-    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-
-  // Imprimir en el archivo
-  archivo << "Iteración " << contador << std::endl;
-  archivo << "Abiertos: " << std::endl;
-  for (auto c : abierto) {
-    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-  archivo << "Cerrados: " << std::endl;
-  for (auto c : cerrados) {
-    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-
-  // Cierra el archivo
+void Tablero::tabla (int generados, int inspeccionados, Nodo* final,std::string nombre_fichero ) {
+  std::ofstream archivo(nombre_fichero, std::ios::app);
+  archivo << "Instancia n m S E Camino Coste Número de nodos generados Número de nodos inspeccionados" << std::endl;
+  archivo << "-------------------------------------------------------------" << std::endl;
+  archivo << "n: " << tablero_.size() << " m: " << tablero_[0].size() << " S: (" << inicialx_ << "," << inicialy_ << ") E: (" << finalx_ << "," << finaly_ << ")" << std::endl;
+  archivo << "Coste: " << final->Get_f() << std::endl;
+  archivo << "Número de nodos generados: " << generados << std::endl;
+  archivo << "Número de nodos inspeccionados: " << inspeccionados << std::endl;
   archivo.close();
 }
+
 Tablero::Tablero(std::string nombre_archivo) {
   std::ifstream archivo(nombre_archivo);
   if (!archivo) {
@@ -105,6 +87,31 @@ Tablero::Tablero(std::string nombre_archivo) {
   archivo.close();
 }
 
+void ImprimirIteracion(int contador, const std::set<Nodo*>& abierto, const std::set<Nodo*>& cerrados,std::string fichero) {
+  //Imprimir en consola y fihero
+  std::ofstream archivo(fichero, std::ios::app);
+  // Imprimir en la consola
+  std::cout << "Iteración " << contador << std::endl;
+  std::cout << "Abiertos: " << std::endl;
+  archivo << "Iteración " << contador << std::endl;
+  archivo << "Abiertos: " << std::endl;
+  for (auto c : abierto) {
+    std::cout << "(" << c->Get_posx() << "," << c->Get_posy() << ") ,";
+    archivo << "(" << c->Get_posx() << "," << c->Get_posy() << ") ,";
+  }
+  std::cout << std::endl;
+  archivo << std::endl;
+  std::cout << "Cerrados: " << std::endl;
+  archivo << "Cerrados: " << std::endl;
+  for (auto c : cerrados) {
+    std::cout << "(" << c->Get_posx() << "," << c->Get_posy() << ") ,";
+    archivo << "(" << c->Get_posx() << "," << c->Get_posy() << ") ,";
+  }
+  std::cout << std::endl;
+  archivo << std::endl;
+  archivo.close();
+}
+
 void Tablero::ImprimirEnFichero(std::string nombre_fichero) {
   std::ofstream archivo(nombre_fichero);
   if (!archivo) {
@@ -124,9 +131,12 @@ void Tablero::ImprimirEnFichero(std::string nombre_fichero) {
   archivo.close();
 }
 
-void Tablero::BusquedaA() {
+
+void Tablero::BusquedaA(std::string nombre_fichero) {
   std::set<Nodo*> cerrados;
   std::set<Nodo*> abierto;
+  std::set<Nodo*> cerrados2;
+  std::set<Nodo*> abierto2;
   // Creo nodo inicial
   Nodo* inicial = new Nodo(inicialx_,inicialy_);
   //Añadimos el nodo inicial al vector y sus funciones
@@ -139,7 +149,7 @@ void Tablero::BusquedaA() {
   int contador = 1;
   while (!abierto.empty()) {
     // Imprimir cada iteración
-    ImprimirIteracion(contador, abierto, cerrados);
+    ImprimirIteracion(contador, abierto2, cerrados, nombre_fichero);
     //std::cout << "tamaño abierto: " << abierto.size() << std::endl; 
   // Encontramos el menor f en abiertos (2.a)
     int menor_f = 99999999;
@@ -172,7 +182,8 @@ void Tablero::BusquedaA() {
       }
       tablero[finalx_][finaly_] = 4;
       //std::cout << "Copito " << std::endl;
-      ImprimirLaberinto(tablero, "salida.txt");
+      ImprimirLaberinto(tablero, nombre_fichero );
+      tabla(abierto.size() + cerrados.size(), cerrados.size(), nodo, nombre_fichero);
       //Destructor
       for (auto c : cerrados) {
         delete c;
@@ -185,6 +196,7 @@ void Tablero::BusquedaA() {
   // sacamos el nodo de abiertos y lo metemos en cerrados
     abierto.erase(nodo);
     cerrados.insert(nodo);
+    cerrados2.insert(nodo);
   // Calculamos los hijos y los añadimos a la lista de abiertos si no estan en cerrados
   // Si encontramos un nodo que ya esta en el vector de abiertos, comprobamos si el nuevo camino es mejor
   // (2.b)
@@ -241,6 +253,7 @@ void Tablero::BusquedaA() {
             delete hijo;
           } else {
             abierto.insert(hijo);
+            abierto2.insert(hijo);
           }
         // Si ya estaba y el que estaba es peor
         } else if ( encontrado && !peor ) {
@@ -270,3 +283,53 @@ int Tablero::Calcular_f(int costeg, int posx, int posy) {
   int coste_h = Calcular_h(posx,posy);
   return costeg + coste_h;
 }
+
+void Tablero::Set_inicial(int x, int y) {
+  tablero_[x][y] = 3;
+  tablero_[inicialx_][inicialy_] = 1;
+  inicialx_ = x;
+  inicialy_ = y;
+}
+
+void Tablero::Set_final(int x, int y) {
+  tablero_[x][y] = 4;
+  tablero_[finalx_][finaly_] = 1;
+  finalx_ = x;
+  finaly_ = y;
+}
+
+
+
+
+
+/*
+void ImprimirIteracion(int contador, const std::set<Nodo*>& abierto, const std::set<Nodo*>& cerrados) {
+  // Abre un archivo para escribir los datos en modo de sobrescritura
+  std::ofstream archivo("salida.txt", std::ios::app);
+
+  // Imprimir en la consola
+  std::cout << "Iteración " << contador << std::endl;
+  std::cout << "Abiertos: " << std::endl;
+  for (auto c : abierto) {
+    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+  std::cout << "Cerrados: " << std::endl;
+  for (auto c : cerrados) {
+    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+
+  // Imprimir en el archivo
+  archivo << "Iteración " << contador << std::endl;
+  archivo << "Abiertos: " << std::endl;
+  for (auto c : abierto) {
+    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+  archivo << "Cerrados: " << std::endl;
+  for (auto c : cerrados) {
+    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
+  }
+
+  // Cierra el archivo
+  archivo.close();
+}
+*/
