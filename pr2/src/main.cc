@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
     std::cout << "2. Busqueda A*" << std::endl;
     std::cout << "3. Elegir inicio" << std::endl;
     std::cout << "4. Elegir final" << std::endl;
+    std::cout << "6. Busqueda A* Euclidea" << std::endl;
     std::cout << "5. Salir" << std::endl;
     int opcion;
     std::cin >> opcion;
@@ -20,7 +21,7 @@ int main(int argc, char* argv[]) {
         tablero.ImprimirEnFichero(salida);
         break;
       case 2:
-        tablero.BusquedaA(salida);
+        tablero.BusquedaA(salida,false);
         break;
       case 3:
         int x,y;
@@ -41,6 +42,9 @@ int main(int argc, char* argv[]) {
       case 5:
         return 0;
         break;
+      case 6:
+        tablero.BusquedaA(salida,true);
+      break;
       default:
         std::cout << "Opción no válida" << std::endl;
         break;

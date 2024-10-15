@@ -51,6 +51,12 @@ void Tablero::tabla (int generados, int inspeccionados, Nodo* final,std::string 
   archivo << "Instancia n m S E Camino Coste Número de nodos generados Número de nodos inspeccionados" << std::endl;
   archivo << "-------------------------------------------------------------" << std::endl;
   archivo << "n: " << tablero_.size() << " m: " << tablero_[0].size() << " S: (" << inicialx_ << "," << inicialy_ << ") E: (" << finalx_ << "," << finaly_ << ")" << std::endl;
+  archivo << "Camino: ";
+  Nodo* aux = final;
+  while (aux->Get_padre() != nullptr) {
+    archivo << "(" << aux->Get_posx() << "," << aux->Get_posy() << ") ,";
+    aux = aux->Get_padre();
+  }
   archivo << "Coste: " << final->Get_f() << std::endl;
   archivo << "Número de nodos generados: " << generados << std::endl;
   archivo << "Número de nodos inspeccionados: " << inspeccionados << std::endl;
@@ -132,7 +138,7 @@ void Tablero::ImprimirEnFichero(std::string nombre_fichero) {
 }
 
 
-void Tablero::BusquedaA(std::string nombre_fichero) {
+void Tablero::BusquedaA(std::string nombre_fichero, bool euclidea) {
   std::set<Nodo*> cerrados;
   std::set<Nodo*> abierto;
   std::set<Nodo*> cerrados2;
@@ -141,8 +147,15 @@ void Tablero::BusquedaA(std::string nombre_fichero) {
   Nodo* inicial = new Nodo(inicialx_,inicialy_);
   //Añadimos el nodo inicial al vector y sus funciones
   abierto.insert(inicial);
-  int h = Calcular_h(inicialx_,inicialy_);
-  int f = Calcular_f(0,inicialx_,inicialy_);
+  int h = 0;
+  int f = 0;
+  if (euclidea) {
+    h = Calcular_euclidea(inicialx_,inicialy_);
+    f = Calcular_f(0,inicialx_,inicialy_, true);
+  } else {
+    h = Calcular_h(inicialx_,inicialy_);
+    f = Calcular_f(0,inicialx_,inicialy_, false);
+  }
   inicial->Set_f(f);
   inicial->Set_h(h);
   inicial->Set_g(0);
@@ -217,8 +230,15 @@ void Tablero::BusquedaA(std::string nombre_fichero) {
         Nodo* hijo = new Nodo(new_x, new_y);
         hijo->Set_padre(nodo);
         int g = nodo->Get_g() + costos[i]; // Movimiento de coste 5 o 7
-        int h = Calcular_h(new_x, new_y);
-        int f = Calcular_f(g, new_x, new_y);
+        int h = 0;
+        int f = 0;
+        if (euclidea) {
+          h = Calcular_euclidea(new_x, new_y);
+          f = Calcular_f(g, new_x, new_y, true);
+        } else {
+          h = Calcular_h(new_x, new_y);
+          f = Calcular_f(g, new_x, new_y, false);
+        }
         hijo->Set_g(g);
         hijo->Set_h(h);
         hijo->Set_f(f);
@@ -279,9 +299,22 @@ int Tablero::Calcular_h(int xE, int yE) {
   return distancia_manhattan * W;
 }
 
-int Tablero::Calcular_f(int costeg, int posx, int posy) {
-  int coste_h = Calcular_h(posx,posy);
+
+
+int Tablero::Calcular_f(int costeg, int posx, int posy, bool euclidea) {
+  int coste_h = 0;
+  if (euclidea) {
+    coste_h = Calcular_euclidea(posx, posy);
+  } else {
+    coste_h = Calcular_h(posx, posy);
+  }
   return costeg + coste_h;
+}
+
+int Tablero::Calcular_euclidea(int xE, int yE) {
+  std::cout << "Calculando euclidea" << std::endl;
+  int euclidea = std::sqrt(std::pow(xE - finalx_, 2) + std::pow(yE - finaly_, 2));
+  return euclidea * 4;
 }
 
 void Tablero::Set_inicial(int x, int y) {
@@ -302,34 +335,3 @@ void Tablero::Set_final(int x, int y) {
 
 
 
-/*
-void ImprimirIteracion(int contador, const std::set<Nodo*>& abierto, const std::set<Nodo*>& cerrados) {
-  // Abre un archivo para escribir los datos en modo de sobrescritura
-  std::ofstream archivo("salida.txt", std::ios::app);
-
-  // Imprimir en la consola
-  std::cout << "Iteración " << contador << std::endl;
-  std::cout << "Abiertos: " << std::endl;
-  for (auto c : abierto) {
-    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-  std::cout << "Cerrados: " << std::endl;
-  for (auto c : cerrados) {
-    std::cout << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-
-  // Imprimir en el archivo
-  archivo << "Iteración " << contador << std::endl;
-  archivo << "Abiertos: " << std::endl;
-  for (auto c : abierto) {
-    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-  archivo << "Cerrados: " << std::endl;
-  for (auto c : cerrados) {
-    archivo << "Nodo: (" << c->Get_posx() << "," << c->Get_posy() << ") f: " << c->Get_f() << " g: " << c->Get_g() << " h: " << c->Get_h() << std::endl;
-  }
-
-  // Cierra el archivo
-  archivo.close();
-}
-*/

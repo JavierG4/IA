@@ -11,7 +11,7 @@ class Tablero {
  public:
    Tablero (std::string);
    void ImprimirEnFichero(std::string);
-   void BusquedaA (std::string);
+   void BusquedaA (std::string, bool);
    int Get_inicialx() {return inicialx_;}
    int Get_inicialy() {return inicialy_;}
    int Get_finalx() {return finalx_;}
@@ -22,7 +22,8 @@ class Tablero {
 
  private:
    int Calcular_h(int,int);
-   int Calcular_f(int,int,int);
+   int Calcular_f(int,int,int, bool);
+   int Calcular_euclidea(int,int);
    std::vector<std::vector<int>> tablero_;
    int inicialx_; // Inicial 3
    int inicialy_; // Inicial 3
